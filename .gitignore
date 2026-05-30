@@ -34,3 +34,6 @@ service/outputs*/
 
 # Local Claude config (not for shared repo)
 .claude/
+
+# Packaged app artifacts (released via gh, not committed)
+app/dist/
