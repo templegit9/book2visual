@@ -26,22 +26,41 @@ class KontextBackend:
         self._kontext_pipe = None  # FluxKontextPipeline for conditioned panels
 
     def load(self) -> None:
-        """Load FLUX base + Kontext pipelines and apply the anime style LoRA."""
+        """Load FLUX base + Kontext pipelines and apply the anime style LoRA.
+
+        Both pipelines use ``enable_model_cpu_offload`` rather than ``.to("cuda")``:
+        this backend holds TWO ~24GB FLUX transformers (base for references,
+        Kontext for panels), and a vLLM sidecar already reserves a chunk of the
+        same GPU. Pinning both fully resident OOMs an 80GB card. CPU offload keeps
+        the weights in host RAM and pages only the active module onto the GPU, so
+        peak VRAM is ~one transformer at a time. Slower per image, but it fits
+        alongside vLLM. (Set BOOK2VISUAL_FLUX_RESIDENT=1 to force full-GPU load on
+        a dedicated, no-sidecar card.)
+        """
         import torch  # noqa: F401  (lazy)
         from diffusers import FluxKontextPipeline, FluxPipeline
 
         dtype = torch.bfloat16
+        resident = config.FLUX_RESIDENT
+
         self._base_pipe = FluxPipeline.from_pretrained(
             config.FLUX_BASE_MODEL, torch_dtype=dtype
-        ).to("cuda")
+        )
         self._base_pipe.load_lora_weights(self.anime_lora)
 
         self._kontext_pipe = FluxKontextPipeline.from_pretrained(
             config.FLUX_KONTEXT_MODEL, torch_dtype=dtype
-        ).to("cuda")
+        )
         # Compose the anime style LoRA with Kontext (the #1 open risk validated
         # by the consistency spike). If it degrades identity, switch to `lora`.
         self._kontext_pipe.load_lora_weights(self.anime_lora)
+
+        if resident:
+            self._base_pipe.to("cuda")
+            self._kontext_pipe.to("cuda")
+        else:
+            self._base_pipe.enable_model_cpu_offload()
+            self._kontext_pipe.enable_model_cpu_offload()
 
     def unload(self) -> None:
         import gc
