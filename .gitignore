@@ -31,3 +31,6 @@ __pycache__/
 *.pyc
 mockserver/outputs*/
 service/outputs*/
+
+# Local Claude config (not for shared repo)
+.claude/

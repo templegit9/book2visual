@@ -1,2 +1,0 @@
-- [User Profile](user-profile.md) — Solo indie dev, frugal/privacy-first mindset, SwiftUI + GPU-infra capable, Book2Visual owner
-- [Book2Visual Project](book2visual-project.md) — Architecture decisions, pipeline, v1 scope, and key risks for Book2Visual (PRD generated 2026-05-29)
