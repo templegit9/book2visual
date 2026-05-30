@@ -2,7 +2,17 @@
 
 **Last updated:** 2026-05-30
 **Repo:** https://github.com/templegit9/book2visual
+**Release:** https://github.com/templegit9/book2visual/releases/tag/v1.0.0 (macOS app, arm64)
 **Status:** ✅ Working end-to-end on real GPU. Validated. Thunder spend at $0 (instance + snapshots deleted).
+
+## Install the Mac app
+
+Download `Book2Visual-1.0.0-macos.zip` from the [v1.0.0 release](https://github.com/templegit9/book2visual/releases/tag/v1.0.0),
+unzip, move **Book2Visual.app** to `/Applications`. It's **unsigned** (no Apple Developer ID), so on first
+launch: right-click → **Open** → **Open**, or run `xattr -dr com.apple.quarantine /Applications/Book2Visual.app`.
+Rebuild/repackage anytime with `app/scripts/package_release.sh <version>`. (arm64/Apple-Silicon only;
+macOS 14+.) Offline demo: launch with `BOOK2VISUAL_MOCK=1`. For a signed+notarized install, use the
+`mac-homebrew-deploy` workflow (needs an Apple Developer account).
 
 ---
 
