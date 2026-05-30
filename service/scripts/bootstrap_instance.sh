@@ -34,10 +34,14 @@ pip install -r requirements.txt
 
 echo "==> Pre-download model weights"
 # HF_TOKEN must be exported for the gated FLUX weights.
-huggingface-cli download "$LLM_MODEL"
-huggingface-cli download "$FLUX_MODEL"
-huggingface-cli download "$KONTEXT_MODEL"
-huggingface-cli download "$ANIME_LORA"
+# huggingface_hub >=1.0 dropped `huggingface-cli`; the command is now `hf download`.
+# Install the CLI explicitly (not all base images ship it) and authenticate non-interactively.
+pip install -U "huggingface_hub[cli]"
+if [ -n "${HF_TOKEN:-}" ]; then hf auth login --token "$HF_TOKEN" || true; fi
+hf download "$LLM_MODEL"
+hf download "$FLUX_MODEL"
+hf download "$KONTEXT_MODEL"
+hf download "$ANIME_LORA"
 
 echo "==> Start vLLM sidecar (OpenAI-compatible, guided decoding)"
 nohup python -m vllm.entrypoints.openai.api_server \
