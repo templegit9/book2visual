@@ -31,7 +31,13 @@ class LoraBackend:
 
         self._pipe = FluxPipeline.from_pretrained(
             config.FLUX_BASE_MODEL, torch_dtype=torch.bfloat16
-        ).to("cuda")
+        )
+        # CPU offload by default so FLUX co-exists with the vLLM sidecar on one
+        # GPU (see kontext.py). BOOK2VISUAL_FLUX_RESIDENT=1 forces full-GPU load.
+        if config.FLUX_RESIDENT:
+            self._pipe.to("cuda")
+        else:
+            self._pipe.enable_model_cpu_offload()
         # Always-on anime style LoRA (adapter name "style").
         self._pipe.load_lora_weights(self.anime_lora, adapter_name="style")
 

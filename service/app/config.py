@@ -37,6 +37,12 @@ ANIME_LORA: str = os.environ.get(
 )
 PANEL_SIZE: int = int(os.environ.get("BOOK2VISUAL_PANEL_SIZE", "768"))
 
+# FLUX placement. Default OFF = enable_model_cpu_offload (weights in host RAM,
+# active module paged to GPU) so FLUX co-exists with the vLLM sidecar on one
+# card. Set to 1 only on a dedicated GPU with no sidecar to keep FLUX fully
+# resident (faster, but needs the full ~24-62GB on-GPU).
+FLUX_RESIDENT: bool = _env_bool("BOOK2VISUAL_FLUX_RESIDENT", False)
+
 # --- Paths ------------------------------------------------------------------
 SERVICE_ROOT: Path = Path(__file__).resolve().parent.parent
 ASSETS_DIR: Path = SERVICE_ROOT / "assets"
