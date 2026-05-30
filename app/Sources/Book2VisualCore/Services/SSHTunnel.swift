@@ -30,11 +30,15 @@ public struct SSHTunnelConfig: Equatable, Sendable {
         [
             "-N",
             "-L", "\(localPort):127.0.0.1:\(remotePort)",
-            "-i", keyPath,
+            "-i", (keyPath as NSString).expandingTildeInPath,
             "-p", "\(sshPort)",
+            // IdentitiesOnly: offer ONLY this key, else ssh tries every agent/~/.ssh
+            // key first and can hit the server's "too many auth failures" limit.
+            "-o", "IdentitiesOnly=yes",
             "-o", "StrictHostKeyChecking=accept-new",
             "-o", "ServerAliveInterval=30",
             "-o", "ServerAliveCountMax=3",
+            "-o", "ExitOnForwardFailure=yes",
             "\(user)@\(host)"
         ]
     }

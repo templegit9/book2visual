@@ -13,11 +13,14 @@ public final class AppEnvironment {
         appState: AppState,
         instanceManager: any InstanceManager,
         jobClient: JobClient,
-        outputStore: OutputStore
+        outputStore: OutputStore,
+        tunnel: SSHTunnel? = nil
     ) {
         self.appState = appState
         self.outputStore = outputStore
-        self.instanceViewModel = InstanceViewModel(manager: instanceManager, appState: appState)
+        self.instanceViewModel = InstanceViewModel(
+            manager: instanceManager, appState: appState, tunnel: tunnel
+        )
         self.runViewModel = RunViewModel(client: jobClient, outputStore: outputStore)
     }
 
@@ -56,11 +59,16 @@ public final class AppEnvironment {
             try keyManager.ensureKeyPair()
         }
         let jobClient = HTTPJobClient(localPort: localPort, outputStore: outputStore)
+        // The tunnel forwards localhost:<localPort> -> instance 127.0.0.1:<fastAPIPort>.
+        // InstanceViewModel opens it once the instance is Running; jobClient then
+        // reaches the pipeline over localhost.
+        let tunnel = SSHTunnel()
         return AppEnvironment(
             appState: appState,
             instanceManager: manager,
             jobClient: jobClient,
-            outputStore: outputStore
+            outputStore: outputStore,
+            tunnel: tunnel
         )
     }
 }
