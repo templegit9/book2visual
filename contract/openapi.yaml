@@ -1,0 +1,137 @@
+openapi: 3.1.0
+info:
+  title: Book2Visual Pipeline Service
+  version: 1.0.0
+  description: >
+    Remote pipeline service that turns a short story into a colored-anime visual adaptation.
+    Runs on a ThunderCompute GPU instance, bound to 127.0.0.1 and reached by the macOS app over
+    an SSH tunnel. No authentication of its own — the SSH tunnel is the trust boundary.
+servers:
+  - url: http://127.0.0.1:8000
+    description: Local end of the SSH tunnel to the instance.
+paths:
+  /health:
+    get:
+      operationId: getHealth
+      summary: Liveness + model-load status.
+      responses:
+        "200":
+          description: Service is up.
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [status, models_loaded]
+                properties:
+                  status: { type: string, enum: [ok] }
+                  models_loaded: { type: boolean }
+                  stub: { type: boolean, description: True when running in stub (no-GPU) mode. }
+  /jobs:
+    post:
+      operationId: createJob
+      summary: Submit an adaptation job.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "./schemas/job_request.schema.json" }
+      responses:
+        "200":
+          description: Job accepted.
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [job_id]
+                properties:
+                  job_id: { type: string, format: uuid }
+        "409":
+          description: A job is already running (single-job-at-a-time).
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error: { type: string, enum: [job_already_running] }
+        "422":
+          description: Invalid JobRequest.
+    get:
+      operationId: listJobs
+      summary: List recent jobs (status only).
+      responses:
+        "200":
+          description: Recent jobs.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  required: [job_id, status]
+                  properties:
+                    job_id: { type: string, format: uuid }
+                    status:
+                      type: string
+                      enum: [running, complete, error, cancelled]
+  /jobs/{job_id}/stream:
+    get:
+      operationId: streamJob
+      summary: Server-Sent Events stream of ProgressEvents.
+      parameters:
+        - in: path
+          name: job_id
+          required: true
+          schema: { type: string, format: uuid }
+      responses:
+        "200":
+          description: >
+            text/event-stream. Each event's `data:` field is a JSON ProgressEvent
+            (schemas/progress_event.schema.json). Stream ends after exactly one terminal
+            event (job_complete XOR job_error).
+          content:
+            text/event-stream:
+              schema:
+                type: string
+        "404":
+          description: Unknown job_id.
+  /jobs/{job_id}/cancel:
+    post:
+      operationId: cancelJob
+      summary: Request cancellation (stops after the current scene).
+      parameters:
+        - in: path
+          name: job_id
+          required: true
+          schema: { type: string, format: uuid }
+      responses:
+        "200":
+          description: Cancellation requested.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status: { type: string, enum: [cancelling] }
+        "404":
+          description: Unknown job_id.
+  /jobs/{job_id}/output:
+    get:
+      operationId: getJobOutput
+      summary: Download the result ZIP (only after job_complete).
+      parameters:
+        - in: path
+          name: job_id
+          required: true
+          schema: { type: string, format: uuid }
+      responses:
+        "200":
+          description: The output.zip (PNG pages).
+          content:
+            application/zip:
+              schema:
+                type: string
+                format: binary
+        "404":
+          description: Unknown job_id.
+        "409":
+          description: Job not yet complete.

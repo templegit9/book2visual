@@ -1,0 +1,9 @@
+{
+  "type": "job_complete",
+  "job_id": "11111111-1111-1111-1111-111111111111",
+  "scene_index": null,
+  "total_scenes": 8,
+  "message": "Job complete.",
+  "ts": "2026-05-29T18:05:00Z",
+  "pages": 2
+}

@@ -1,0 +1,57 @@
+# XcodeGen spec for generating a notarizable .app / .xcodeproj later.
+# The canonical verification on this Mac is `swift build` / `swift test`;
+# this file is for producing a real app bundle when needed:
+#   brew install xcodegen && cd app && xcodegen generate
+name: Book2Visual
+options:
+  bundleIdPrefix: com.book2visual
+  deploymentTarget:
+    macOS: "14.0"
+  createIntermediateGroups: true
+
+settings:
+  base:
+    SWIFT_VERSION: "5.9"
+    MARKETING_VERSION: "0.1.0"
+    CURRENT_PROJECT_VERSION: "1"
+    PRODUCT_NAME: Book2Visual
+    GENERATE_INFOPLIST_FILE: NO
+
+targets:
+  Book2Visual:
+    type: application
+    platform: macOS
+    deploymentTarget: "14.0"
+    sources:
+      - path: Sources/Book2VisualCore
+      - path: Sources/Book2VisualApp
+    settings:
+      base:
+        INFOPLIST_FILE: Support/Info.plist
+        CODE_SIGN_ENTITLEMENTS: Support/Book2Visual.entitlements
+        PRODUCT_BUNDLE_IDENTIFIER: com.book2visual.app
+        CODE_SIGN_STYLE: Automatic
+        ENABLE_HARDENED_RUNTIME: YES
+
+  Book2VisualTests:
+    type: bundle.unit-test
+    platform: macOS
+    deploymentTarget: "14.0"
+    sources:
+      - path: Tests/Book2VisualCoreTests
+    dependencies:
+      - target: Book2Visual
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.book2visual.tests
+
+schemes:
+  Book2Visual:
+    build:
+      targets:
+        Book2Visual: all
+    run:
+      config: Debug
+    test:
+      targets:
+        - Book2VisualTests

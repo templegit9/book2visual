@@ -1,0 +1,39 @@
+# Book2Visual service — Python dependencies (pinned).
+#
+# Two groups:
+#   1. LIGHT RUNTIME DEPS — required to run + test the service (incl. stub mode)
+#      on any machine, including a GPU-less Mac. Install these for development.
+#   2. INSTANCE-ONLY GPU DEPS — heavy CUDA/torch stack. Required ONLY on the
+#      ThunderCompute GPU instance when STUB_MODE is OFF. DO NOT install these on
+#      a Mac; they are import-guarded (loaded lazily, only when stub mode is off).
+#
+# Install light deps only (dev/test):   pip install fastapi uvicorn pydantic \
+#     pillow httpx sse-starlette pytest pytest-asyncio
+# Install everything (on the instance):  pip install -r requirements.txt
+
+# ---------------------------------------------------------------------------
+# 1. LIGHT RUNTIME DEPS (Mac + instance)
+# ---------------------------------------------------------------------------
+fastapi==0.115.6
+uvicorn[standard]==0.34.0
+pydantic==2.10.4
+pillow==11.1.0
+httpx==0.28.1
+sse-starlette==2.2.1
+
+# Test-only
+pytest==8.3.4
+pytest-asyncio==0.25.2
+
+# ---------------------------------------------------------------------------
+# 2. INSTANCE-ONLY GPU DEPS  (CUDA GPU required; DO NOT install on macOS)
+#    These are imported lazily only when BOOK2VISUAL_STUB is unset/0.
+# ---------------------------------------------------------------------------
+# torch==2.5.1                 # CUDA build; install via the official index URL
+# diffusers==0.32.1            # FluxPipeline / FluxKontextPipeline
+# transformers==4.48.0
+# accelerate==1.2.1
+# huggingface-hub==0.27.1      # weight download (huggingface-cli)
+# vllm==0.6.6.post1            # OpenAI-compatible LLM sidecar (separate process)
+# sentencepiece==0.2.0
+# protobuf==5.29.2

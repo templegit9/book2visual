@@ -1,0 +1,44 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://book2visual/contract/job_request.schema.json",
+  "title": "JobRequest",
+  "description": "Body of POST /jobs. Mirrored by Swift Codable and Python pydantic models.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["text", "characters"],
+  "properties": {
+    "text": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Story plain text. v1 target range 2000-4000 words."
+    },
+    "characters": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["name"],
+        "properties": {
+          "name": { "type": "string", "minLength": 1 },
+          "race_hint": {
+            "type": "string",
+            "description": "Optional appearance/race hint used only when the text does not describe the character."
+          }
+        }
+      }
+    },
+    "vram_mode": {
+      "type": "string",
+      "enum": ["concurrent", "sequenced"],
+      "default": "concurrent",
+      "description": "concurrent: LLM+FLUX resident together (>=80GB). sequenced: LLM then free then FLUX."
+    },
+    "consistency_mode": {
+      "type": "string",
+      "enum": ["kontext", "lora"],
+      "default": "kontext",
+      "description": "kontext: FLUX.1-Kontext-dev depth-1 fan-out (default). lora: per-character anime LoRA."
+    }
+  }
+}

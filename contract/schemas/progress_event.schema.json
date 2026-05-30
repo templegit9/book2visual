@@ -1,0 +1,44 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://book2visual/contract/progress_event.schema.json",
+  "title": "ProgressEvent",
+  "description": "JSON payload of each SSE event on GET /jobs/{job_id}/stream.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["type", "job_id", "message", "ts"],
+  "properties": {
+    "type": {
+      "type": "string",
+      "enum": [
+        "job_accepted",
+        "stage_update",
+        "scene_start",
+        "scene_complete",
+        "job_complete",
+        "job_error"
+      ],
+      "description": "Stream ends after exactly one terminal event: job_complete XOR job_error. Cancellation is delivered as a job_error with error_code='cancelled'."
+    },
+    "job_id": { "type": "string", "format": "uuid" },
+    "scene_index": {
+      "type": ["integer", "null"],
+      "minimum": 0,
+      "description": "Null before scene extraction completes."
+    },
+    "total_scenes": {
+      "type": ["integer", "null"],
+      "minimum": 0,
+      "description": "Null before scene extraction completes."
+    },
+    "message": { "type": "string", "description": "Human-readable line for the log panel." },
+    "ts": { "type": "string", "format": "date-time" },
+    "pages": {
+      "type": ["integer", "null"],
+      "description": "Present on job_complete: number of pages in output.zip."
+    },
+    "error_code": {
+      "type": ["string", "null"],
+      "description": "Present on job_error."
+    }
+  }
+}

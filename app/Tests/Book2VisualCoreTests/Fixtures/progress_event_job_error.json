@@ -1,0 +1,7 @@
+{
+  "type": "job_error",
+  "job_id": "11111111-1111-1111-1111-111111111111",
+  "message": "FLUX worker crashed.",
+  "ts": "2026-05-29T18:03:00Z",
+  "error_code": "image_stage_failed"
+}

@@ -1,0 +1,33 @@
+
+# Book2Visual project
+service/.venv/
+service/outputs/
+service/**/__pycache__/
+mockserver/outputs/
+*.png.golden.actual
+# Model weights / large artifacts (never commit)
+*.safetensors
+*.gguf
+weights/
+# Xcode
+app/**/build/
+app/**/DerivedData/
+app/**/*.xcuserstate
+app/**/xcuserdata/
+# SwiftPM build dir + XcodeGen-generated project (regenerate via `xcodegen generate`)
+app/.build/
+app/*.xcodeproj/
+# Secrets (never commit)
+*.pem
+id_rsa*
+*.token
+
+# Service runtime artifacts
+service/_logs/
+service/_jobs/
+
+# Python artifacts (global)
+__pycache__/
+*.pyc
+mockserver/outputs*/
+service/outputs*/

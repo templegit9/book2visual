@@ -1,0 +1,9 @@
+{
+  "text": "Gregor Samsa woke one morning to find himself transformed.",
+  "characters": [
+    { "name": "Gregor Samsa", "race_hint": "human" },
+    { "name": "Grete" }
+  ],
+  "vram_mode": "concurrent",
+  "consistency_mode": "kontext"
+}
