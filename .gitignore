@@ -21,6 +21,8 @@ app/*.xcodeproj/
 *.pem
 id_rsa*
 *.token
+# Release signing/notarization secrets (Developer ID, app-specific pw profile)
+.env.release
 
 # Service runtime artifacts
 service/_logs/
