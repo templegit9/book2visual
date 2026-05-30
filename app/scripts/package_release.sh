@@ -29,7 +29,33 @@ rm -rf "$DIST"
 mkdir -p "$APP/Contents/MacOS" "$APP/Contents/Resources"
 # The executable product is Book2VisualApp; rename to match CFBundleExecutable.
 cp "$BUILD_DIR/Book2VisualApp" "$APP/Contents/MacOS/$APP_NAME"
-cp "Support/Info.plist" "$APP/Contents/Info.plist"
+
+# Support/Info.plist is the XcodeGen template with $(VAR) placeholders that only
+# Xcode expands. SwiftPM doesn't, so write a CONCRETE plist here — otherwise
+# CFBundleExecutable stays "$(EXECUTABLE_NAME)" and LaunchServices can't find the
+# binary when the .app is double-clicked.
+BUNDLE_ID="com.book2visual.app"
+cat > "$APP/Contents/Info.plist" <<PLIST
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>CFBundleDevelopmentRegion</key><string>en</string>
+	<key>CFBundleExecutable</key><string>$APP_NAME</string>
+	<key>CFBundleIdentifier</key><string>$BUNDLE_ID</string>
+	<key>CFBundleInfoDictionaryVersion</key><string>6.0</string>
+	<key>CFBundleName</key><string>$APP_NAME</string>
+	<key>CFBundleDisplayName</key><string>Book2Visual</string>
+	<key>CFBundlePackageType</key><string>APPL</string>
+	<key>CFBundleShortVersionString</key><string>$VERSION</string>
+	<key>CFBundleVersion</key><string>$VERSION</string>
+	<key>LSMinimumSystemVersion</key><string>14.0</string>
+	<key>NSHighResolutionCapable</key><true/>
+	<key>LSApplicationCategoryType</key><string>public.app-category.graphics-design</string>
+</dict>
+</plist>
+PLIST
+plutil -lint "$APP/Contents/Info.plist" >/dev/null
 printf 'APPL????' > "$APP/Contents/PkgInfo"
 
 # Bundle any SwiftPM resource bundles (e.g. fonts) next to the binary.
